@@ -36,7 +36,7 @@ function Game() {
   }, [boardState])
 
   return (
-    <div>
+    <div style={{ textAlign: 'center' }}>
       <h1>Tic Tac Toe</h1>
       <h3>Winner is {displayWinner}</h3>
       <Board
