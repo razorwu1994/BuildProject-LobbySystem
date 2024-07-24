@@ -1,26 +1,26 @@
 import { useNavigate } from 'react-router-dom'
 
-function RectPreview() {
+function RectPreview({ event }) {
   const navigate = useNavigate()
   const onJoinEvent = () => {
-    navigate('/somethinggreat')
+    navigate(`/${event.id}`)
   }
   return (
     <div className="preview" onClick={onJoinEvent}>
       <div style={{ background: 'green', opacity: 0.9, color: 'white', borderRadius: '4px' }}>
-        Tic Tac Toe
+        {event.type}
       </div>
-      <user>R W</user>
-      <user>Tester</user>
+      {event.players.map(player => (
+        <div>{player}</div>
+      ))}
     </div>
   )
 }
-export default function EventPreview() {
-  const mockupEvents = new Array(20).fill(0)
+export default function EventPreview({ events }) {
   return (
     <div className="preview-container">
-      {mockupEvents.map((event, idx) => (
-        <RectPreview key={`preview-${idx}`} />
+      {events.map((event, idx) => (
+        <RectPreview key={`preview-${idx}`} event={event} />
       ))}
     </div>
   )

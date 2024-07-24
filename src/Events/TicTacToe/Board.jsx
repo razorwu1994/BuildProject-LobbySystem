@@ -8,6 +8,7 @@ export default function Board({ setBoardState, isXNext, setIsXNext, boardState, 
     flexFlow: 'row wrap',
     width: 'calc(var(--cellSize) * 3)',
     height: 'calc(var(--cellSize) * 3)',
+    margin: 'auto',
   }
   return (
     <div style={styleObj}>
