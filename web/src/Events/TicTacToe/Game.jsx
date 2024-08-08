@@ -1,12 +1,39 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './styles.css'
 import { TIC_TAC_TOE } from './constants'
 import Board from './Board'
 import { calculateWinner } from './utils'
+import { socket } from '../../main'
+import { EVENT_SUBSCRIBE } from '../../constants/socket'
+import { useLocation } from 'react-router-dom'
 
 function Game() {
+  const location = useLocation()
+  const [gameMetadata, setGameMeta] = useState([])
   const [boardState, setBoardState] = useState(TIC_TAC_TOE)
   const [isXNext, setIsXNext] = useState(true)
+
+  useEffect(() => {
+    const eventId = location.pathname.slice(1) // strip off the first character '/'
+    fetch(`http://localhost:3000/events/${eventId}`).then(async res => {
+      const data = await res.json()
+      setGameMeta(data)
+      const currentBoardState = data.history[data.currentMove]
+      setBoardState(currentBoardState)
+    })
+  }, [location.pathname])
+  useEffect(() => {
+    const eventSubscriber = data => {
+      setGameMeta(data)
+      const currentBoardState = data.history[data.currentMove]
+      setBoardState(currentBoardState)
+    }
+    const sub = socket.on(EVENT_SUBSCRIBE, eventSubscriber)
+    return () => {
+      socket.off(EVENT_SUBSCRIBE, sub)
+    }
+  }, [])
+
   const displayWinner = useMemo(() => {
     const xRows = [],
       oRows = []
@@ -34,11 +61,15 @@ function Game() {
     //above should give us the correct one to apply for below function
     return calculateWinner(dataset)
   }, [boardState])
-
   return (
     <div style={{ textAlign: 'center' }}>
       <h1>Tic Tac Toe</h1>
       <h3>Winner is {displayWinner}</h3>
+      <div>
+        {(gameMetadata.players || []).map(player => (
+          <h1 key={player}>{player}</h1>
+        ))}
+      </div>
       <Board
         setBoardState={setBoardState}
         isXNext={isXNext}

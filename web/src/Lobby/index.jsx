@@ -3,13 +3,17 @@ import UserPanel from './UserPanel'
 import EventPreview from './EventPreview'
 import { useCallback, useEffect, useState } from 'react'
 import useAuth from '../Auth/useAuth'
-import { EVENT_CREATE_EVENT, EVENT_LIST_EVENTS } from '../constants/socket'
+import {
+  CLIENT_EVENT_LIST_EVENTS,
+  EVENT_CREATE_EVENT,
+  SERVER_EVENT_LIST_EVENTS,
+} from '../constants/socket'
 import { socket } from '../main'
 import { useNavigate } from 'react-router-dom'
 const EVENT_INIT_OBJECT = {}
 export default function Lobby() {
   const navigate = useNavigate()
-  const username = useAuth()
+  const userName = useAuth()
   const [events, setEvents] = useState([])
   const [eventType, setEventType] = useState('Tic-Tac-Toe')
 
@@ -18,19 +22,19 @@ export default function Lobby() {
   }
   useEffect(() => {
     //from client
-    socket.emit(EVENT_LIST_EVENTS)
+    socket.emit(SERVER_EVENT_LIST_EVENTS)
   }, [])
 
   useEffect(() => {
     //from server
-    socket.on(EVENT_LIST_EVENTS, API_GETEvents)
+    socket.on(CLIENT_EVENT_LIST_EVENTS, API_GETEvents)
     return () => {
-      socket.off(EVENT_LIST_EVENTS, API_GETEvents)
+      socket.off(CLIENT_EVENT_LIST_EVENTS, API_GETEvents)
     }
   })
 
   const createEvent = () => {
-    socket.emit(EVENT_CREATE_EVENT, { username, eventType }, id => {
+    socket.emit(EVENT_CREATE_EVENT, { userName, eventType }, id => {
       navigate(`/${id}`)
     })
   }
