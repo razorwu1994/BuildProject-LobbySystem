@@ -28,7 +28,7 @@ app.get('/users', (request, response) => {
 app.get('/events/:id', (request, response) => {
   const eventId = request.params.id
   const event = events.find(event => event.id === eventId)
-  return response.json(event)
+  return response.json(event || null)
 })
 //3000 is the port number
 expressServer.listen(3000, () => {
@@ -63,7 +63,7 @@ io.on('connection', socket => {
   socket.on(EVENT_CREATE_EVENT, (payload, webRedirectCallBack) => {
     const { userName, eventType } = payload
     const event = {
-      id: `${userName}_${new Date().getTime()}_event`,
+      id: `tictactoe_${new Date().getTime()}`,
       players: [userName],
       type: eventType,
       stage: GAME_STAGE.INIT,
@@ -105,12 +105,14 @@ io.on('connection', socket => {
   })
 
   socket.on(EVENT_UPDATE_EVENT, ({ eventId, type }, metadata) => {
+    console.log({ eventId, type }, metadata)
     const event = events.find(event => event.id === eventId)
+
     let userName
     switch (type) {
       case 'gameMove':
         const nextGameState = metadata.gameState
-        event.history = nextGameState
+        event.history.push(nextGameState)
         event.currentMove = event.history.length - 1
         break
       case 'playerReady':

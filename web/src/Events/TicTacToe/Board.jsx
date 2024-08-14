@@ -1,8 +1,17 @@
 /* eslint-disable react/prop-types */
+import { EVENT_UPDATE_EVENT } from '../../constants/socket'
+import { socket } from '../../main'
 import Cell from './Cell'
 import { TIC_TAC_TOE } from './constants'
 
-export default function Board({ setBoardState, isXNext, setIsXNext, boardState, ...props }) {
+export default function Board({
+  disablePlayerMove,
+  boardState,
+  onPlayerMove,
+  isXNext,
+  playerSymbol,
+  ...props
+}) {
   const styleObj = {
     display: 'flex',
     flexFlow: 'row wrap',
@@ -10,29 +19,25 @@ export default function Board({ setBoardState, isXNext, setIsXNext, boardState, 
     height: 'calc(var(--cellSize) * 3)',
     margin: 'auto',
   }
+
   return (
-    <div style={styleObj}>
-      {TIC_TAC_TOE.map((row, i) => {
-        return row.map((cell, j) => {
-          return (
-            <Cell
-              key={`${i}-${j}`}
-              onClick={() => {
-                setBoardState(bs => {
-                  const symbolToPut = isXNext ? 'X' : 'O'
-                  setIsXNext(!isXNext)
-                  return [
-                    ...bs.slice(0, i),
-                    [...bs[i].slice(0, j), symbolToPut, ...bs[i].slice(j + 1)],
-                    ...bs.slice(i + 1),
-                  ]
-                })
-              }}
-              symbol={boardState[i][j]}
-            />
-          )
-        })
-      })}
-    </div>
+    <>
+      <div>Next Player: {isXNext ? 'X' : 'O'}</div>
+      <div>You are {playerSymbol}</div>
+      <div style={styleObj}>
+        {TIC_TAC_TOE.map((row, i) => {
+          return row.map((cell, j) => {
+            return (
+              <Cell
+                key={`${i}-${j}`}
+                onClick={!disablePlayerMove ? () => onPlayerMove(i, j) : null}
+                symbol={boardState[i][j]}
+                disabled={disablePlayerMove}
+              />
+            )
+          })
+        })}
+      </div>
+    </>
   )
 }
