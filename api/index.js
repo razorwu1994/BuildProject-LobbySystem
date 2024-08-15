@@ -63,7 +63,7 @@ io.on('connection', socket => {
   socket.on(EVENT_CREATE_EVENT, (payload, webRedirectCallBack) => {
     const { userName, eventType } = payload
     const event = {
-      id: `tictactoe_${new Date().getTime()}`,
+      id: `${eventType}_${new Date().getTime()}`,
       players: [userName],
       type: eventType,
       stage: GAME_STAGE.INIT,
@@ -110,6 +110,10 @@ io.on('connection', socket => {
 
     let userName
     switch (type) {
+      case 'gameEnd':
+        event.stage = GAME_STAGE.END
+        event.winner = metadata.winner
+        break
       case 'gameMove':
         const nextGameState = metadata.gameState
         event.history.push(nextGameState)
@@ -118,6 +122,7 @@ io.on('connection', socket => {
       case 'playerReady':
         userName = metadata.userName
         event.playerReady.push(userName)
+        /** automatically start the game once has two players ready */
         if (event.playerReady.length === 2) {
           event.stage = GAME_STAGE.START
           const _rand = Math.random() < 0.5

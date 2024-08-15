@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import './styles.css'
 import { TIC_TAC_TOE } from './constants'
 import Board from './Board'
@@ -8,6 +8,8 @@ import { EVENT_SUBSCRIBE, EVENT_UPDATE_EVENT } from '../../constants/socket'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { GAME_STAGE } from '../../constants/game'
 import useAuth from '../../Auth/useAuth'
+import Init from './BoardContent/Init'
+import StartAndEnd from './BoardContent/StartAndEnd'
 
 function Game() {
   const navigate = useNavigate()
@@ -18,9 +20,11 @@ function Game() {
   const [isXNext, setIsXNext] = useState(true)
   const eventId = useMemo(() => location.pathname.slice(1), [location.pathname]) // strip off the first character '/'
 
+  //REST API GET /events/:id
   useEffect(() => {
     try {
       fetch(`http://localhost:3000/events/${eventId}`).then(async res => {
+        //data = event || null  [from API response]
         const data = await res.json()
         if (!data) {
           navigate('/')
@@ -33,8 +37,11 @@ function Game() {
       navigate('/')
     }
   }, [location.pathname, eventId, navigate])
+
+  // subscriber function
   useEffect(() => {
     const eventSubscriber = data => {
+      //data = event [from API web socket]
       setGameMeta(data)
       const currentBoardState = data.history[data.currentMove]
       setIsXNext(data.currentMove % 2 === 0)
@@ -46,6 +53,7 @@ function Game() {
     }
   }, [])
 
+  /** X or O or null */
   const displayWinner = useMemo(() => {
     const xRows = [],
       oRows = []
@@ -74,10 +82,17 @@ function Game() {
     return calculateWinner(dataset)
   }, [boardState])
 
-  const onPlayerReady = () => {
-    socket.emit(EVENT_UPDATE_EVENT, { eventId, type: 'playerReady' }, { userName })
-  }
+  useEffect(() => {
+    if (displayWinner) {
+      socket.emit(EVENT_UPDATE_EVENT, { eventId, type: 'gameEnd' }, { winner: displayWinner })
+    }
+  }, [displayWinner, eventId])
 
+  const onPlayerReady = useCallback(() => {
+    socket.emit(EVENT_UPDATE_EVENT, { eventId, type: 'playerReady' }, { userName })
+  }, [eventId, userName])
+
+  /** where we handles player leaves */
   useEffect(() => {
     const beforeUnloadListener = () => {
       if (eventId) {
@@ -91,75 +106,68 @@ function Game() {
     }
   }, [eventId, navigate, userName])
 
-  const onPlayerMove = async (row, col) => {
-    const bs = boardState
-    const symbolToPut = isXNext ? 'X' : 'O'
-    const gameState = [
-      ...bs.slice(0, row),
-      [...bs[row].slice(0, col), symbolToPut, ...bs[row].slice(col + 1)],
-      ...bs.slice(row + 1),
-    ]
-    socket.emit(
-      EVENT_UPDATE_EVENT,
-      { eventId, type: 'gameMove' },
-      {
-        gameState,
-      },
-    )
-  }
+  const onPlayerMove = useCallback(
+    async (row, col) => {
+      const bs = boardState
+      const symbolToPut = isXNext ? 'X' : 'O'
+      const gameState = [
+        ...bs.slice(0, row),
+        [...bs[row].slice(0, col), symbolToPut, ...bs[row].slice(col + 1)],
+        ...bs.slice(row + 1),
+      ]
+
+      socket.emit(
+        EVENT_UPDATE_EVENT,
+        { eventId, type: 'gameMove' },
+        {
+          gameState,
+        },
+      )
+    },
+    [boardState, eventId, isXNext],
+  )
   const disablePlayerMove = useMemo(() => {
-    if (gameMetadata.symbolMap) return (isXNext ? 'X' : 'O') !== gameMetadata.symbolMap[userName]
+    //if gamemetadata is not avaiable, return true
+    if (!gameMetadata.symbolMap) return true
+
+    const playerSymbol = gameMetadata.symbolMap[userName]
+    const nextSymbol = isXNext ? 'X' : 'O'
+    return playerSymbol !== nextSymbol
   }, [gameMetadata, isXNext, userName])
+
+  const boardComponent = useMemo(() => {
+    if (gameMetadata.stage === GAME_STAGE.INIT) {
+      return <Init {...{ gameMetadata, userName, eventId, onPlayerReady }} />
+    } else if (gameMetadata.stage === GAME_STAGE.START || gameMetadata.stage === GAME_STAGE.END) {
+      return (
+        <StartAndEnd
+          {...{
+            displayWinner,
+            isXNext,
+            boardState,
+            onPlayerMove,
+            disablePlayerMove,
+            gameMetadata,
+            userName,
+          }}
+        />
+      )
+    }
+  }, [
+    boardState,
+    disablePlayerMove,
+    displayWinner,
+    eventId,
+    gameMetadata,
+    isXNext,
+    onPlayerMove,
+    onPlayerReady,
+    userName,
+  ])
   return (
     <div style={{ textAlign: 'center' }}>
       <h1>Tic Tac Toe</h1>
-      {gameMetadata.stage === GAME_STAGE.INIT && (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10%' }}>
-            {(gameMetadata.players || []).map((player, idx) => (
-              <div key={player}>
-                <h1
-                  style={{
-                    background: ['red', 'green'][idx % 2],
-                    opacity: 0.9,
-                    borderRadius: '2rem',
-                    padding: '1rem',
-                    color: 'white',
-                  }}
-                >
-                  {player}
-                </h1>
-                <h2 style={{ textDecoration: 'underline' }}>
-                  {gameMetadata.playerReady.includes(player) ? 'Ready' : 'Not Ready'}
-                </h2>
-              </div>
-            ))}
-          </div>
-          {!gameMetadata.playerReady.includes(userName) && eventId && (
-            <div>
-              <button
-                style={{ fontSize: '1.5rem', background: 'blue', opacity: 0.5, color: 'white' }}
-                onClick={onPlayerReady}
-              >
-                Ready
-              </button>
-            </div>
-          )}
-        </>
-      )}
-
-      {(gameMetadata.stage === GAME_STAGE.START || gameMetadata.stage === GAME_STAGE.END) && (
-        <>
-          <h3>Winner is {displayWinner}</h3>
-          <Board
-            isXNext={isXNext}
-            boardState={boardState}
-            onPlayerMove={onPlayerMove}
-            disablePlayerMove={disablePlayerMove || gameMetadata.stage === GAME_STAGE.END}
-            playerSymbol={gameMetadata.symbolMap[userName]}
-          />
-        </>
-      )}
+      {boardComponent}
     </div>
   )
 }

@@ -5,7 +5,7 @@ export default function UserPanel({ createEvent, setEventType }) {
   return (
     <div style={{ padding: '4px' }}>
       <h1>User Info</h1>
-      <h1 style={{ fontSize: '10rem' }}>{username}</h1>
+      <h1 style={{ fontSize: '2rem' }}>{username}</h1>
       <div
         style={{
           display: 'flex',

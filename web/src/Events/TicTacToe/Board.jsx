@@ -1,17 +1,8 @@
 /* eslint-disable react/prop-types */
-import { EVENT_UPDATE_EVENT } from '../../constants/socket'
-import { socket } from '../../main'
 import Cell from './Cell'
 import { TIC_TAC_TOE } from './constants'
 
-export default function Board({
-  disablePlayerMove,
-  boardState,
-  onPlayerMove,
-  isXNext,
-  playerSymbol,
-  ...props
-}) {
+export default function Board({ disablePlayerMove, boardState, onPlayerMove, ...props }) {
   const styleObj = {
     display: 'flex',
     flexFlow: 'row wrap',
@@ -22,8 +13,6 @@ export default function Board({
 
   return (
     <>
-      <div>Next Player: {isXNext ? 'X' : 'O'}</div>
-      <div>You are {playerSymbol}</div>
       <div style={styleObj}>
         {TIC_TAC_TOE.map((row, i) => {
           return row.map((cell, j) => {
