@@ -165,8 +165,39 @@ function Game() {
     userName,
   ])
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h1>Tic Tac Toe</h1>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '40% 60%',
+        gridTemplateRows: '20% 80%',
+        height: 'inherit',
+        background: '#d3d2ff',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          gridColumn: '1 / 3',
+        }}
+      >
+        <button className="top-section-btn">Leave</button>
+        <h1 className="event-banner">Tic Tac Toe</h1>
+        <button className="top-section-btn">Friend</button>
+      </div>
+      <div className="chatbox">
+        <div className="chatbackground"></div>
+        {new Array(4).fill(
+          <div className="chatbubble">
+            <div>Tom</div>
+            Hey Gabe!
+          </div>,
+        )}
+        <div className="chatarea">
+          <input type="text" />
+          <button>{'>'}</button>
+        </div>
+      </div>
       {boardComponent}
     </div>
   )

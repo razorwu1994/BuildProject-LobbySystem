@@ -79,3 +79,7 @@ button:focus-visible {
   font-size: 30px;
   line-height: 30px;
 }
+
+.root-container{
+  height: inherit;
+}
