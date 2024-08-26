@@ -13,7 +13,7 @@ export default function StartAndEnd({
 }) {
   const playerSymbol = gameMetadata.symbolMap[userName]
   return (
-    <>
+    <div>
       <h3>Winner is {displayWinner}</h3>
       <h3>Next Player: {isXNext ? 'X' : 'O'}</h3>
       <h3>You are {playerSymbol}</h3>
@@ -22,6 +22,6 @@ export default function StartAndEnd({
         onPlayerMove={onPlayerMove}
         disablePlayerMove={disablePlayerMove || gameMetadata.stage === GAME_STAGE.END}
       />
-    </>
+    </div>
   )
 }

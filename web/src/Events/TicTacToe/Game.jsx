@@ -182,7 +182,7 @@ function Game() {
         }}
       >
         <button className="top-section-btn">Leave</button>
-        <h1 className="event-banner">Tic Tac Toe</h1>
+        <h1 className="event-banner ribbon">Tic Tac Toe</h1>
         <button className="top-section-btn">Friend</button>
       </div>
       <div className="chatbox">
@@ -194,7 +194,7 @@ function Game() {
           </div>,
         )}
         <div className="chatarea">
-          <input type="text" />
+          <input type="text" placeholder="Enter Message ..." />
           <button>{'>'}</button>
         </div>
       </div>
