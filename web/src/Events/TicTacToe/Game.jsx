@@ -181,7 +181,15 @@ function Game() {
           gridColumn: '1 / 3',
         }}
       >
-        <button className="top-section-btn">Leave</button>
+        <button
+          className="top-section-btn"
+          onClick={() => {
+            socket.emit(EVENT_UPDATE_EVENT, { eventId, type: 'playerLeave' }, { userName })
+            window.location.replace('/')
+          }}
+        >
+          Leave
+        </button>
         <h1 className="event-banner ribbon">Tic Tac Toe</h1>
         <button className="top-section-btn">Friend</button>
       </div>

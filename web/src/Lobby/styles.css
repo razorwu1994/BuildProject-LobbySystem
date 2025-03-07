@@ -26,22 +26,31 @@
     flex: 1 1 70%;
 }
 .preview-container{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    flex-flow: row wrap;
     justify-content: center;
     align-items: center;
 }
 .preview{
-    width: var(--cellSize);
-    height: var(--cellSize);
     border: 1px solid;
     margin: auto;
     transition: .5s ease;
     border-radius: 5%;
     padding: 1rem;
-    font-size: 2rem;
+    padding: 2rem;
+    font-size: 3rem;
+    height: 50vh;
+    width: 100%;
+    margin: 2rem;
+    span{
+       
+        display: inline-block;
+        background-color: red;
+        color: white;
+        text-decoration: underline;
+    }
 }
-}
+
 .preview:hover{
     transform:scale(1.01);
     border:2px solid yellow;

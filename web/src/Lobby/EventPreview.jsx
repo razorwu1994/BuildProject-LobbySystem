@@ -17,7 +17,9 @@ function RectPreview({ event }) {
         {event.type}
       </div>
       {event.players.map(player => (
-        <div key={player}>{player}</div>
+        <div key={player}>
+          Player: <span>{player}</span>
+        </div>
       ))}
     </div>
   )
