@@ -13,12 +13,29 @@ function RectPreview({ event }) {
   }
   return (
     <div className="preview" onClick={onJoinEvent}>
-      <div style={{ background: 'green', opacity: 0.9, color: 'white', borderRadius: '4px' }}>
+      <div
+        style={{
+          background: 'green',
+          opacity: 0.75,
+          color: 'white',
+          borderRadius: '4px',
+        }}
+      >
         {event.type}
       </div>
-      {event.players.map(player => (
-        <div key={player}>
-          Player: <span>{player}</span>
+      {event.players.map((player, pi) => (
+        <div key={player} style={{ textDecoration: 'none' }}>
+          Player_{pi + 1}:{' '}
+          <span
+            style={{
+              background: ['purple', 'orange', 'blue', 'green', 'red'][pi % 5],
+              opacity: 0.75,
+              color: 'white',
+              borderRadius: '1rem',
+            }}
+          >
+            {player}
+          </span>
         </div>
       ))}
     </div>

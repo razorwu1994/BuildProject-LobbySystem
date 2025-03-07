@@ -28,26 +28,24 @@
 .preview-container{
     display: flex;
     flex-flow: row wrap;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    gap:4px;
 }
 .preview{
+    flex:0 1 300px;
     border: 1px solid;
-    margin: auto;
+    margin: 1rem;
     transition: .5s ease;
     border-radius: 5%;
     padding: 1rem;
-    padding: 2rem;
     font-size: 3rem;
     height: 50vh;
     width: 100%;
-    margin: 2rem;
+
     span{
-       
         display: inline-block;
-        background-color: red;
         color: white;
-        text-decoration: underline;
     }
 }
 
